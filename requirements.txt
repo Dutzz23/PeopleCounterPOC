@@ -1,2 +1,4 @@
-Django>=5.0,<6.0
-djangorestframework>=3.15,<4.0
+celery==5.6.3
+Django==6.0.6
+djangorestframework==3.17.1
+Requests==2.34.2

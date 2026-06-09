@@ -4,6 +4,37 @@ from django.db import models
 from django.utils import timezone
 
 
+def validate_counting_line_points(value):
+    if not isinstance(value, list):
+        raise ValidationError("Points must be a list.")
+
+    if len(value) < 2:
+        raise ValidationError("At least 2 points are required to define a counting line.")
+
+    for item in value:
+        if not isinstance(item, dict):
+            raise ValidationError("Each point must be an object.")
+
+        if set(item.keys()) != {"x", "y"}:
+            raise ValidationError("Each point must contain only x and y.")
+
+        if not isinstance(item["x"], (int, float)):
+            raise ValidationError("x must be a number.")
+
+        if not isinstance(item["y"], (int, float)):
+            raise ValidationError("y must be a number.")
+
+        if item["x"] < 0.0 or item["x"] > 1.0:
+            raise ValidationError("x must be between 0 and 1.")
+
+        if item["y"] < 0.0 or item["y"] > 1.0:
+            raise ValidationError("y must be between 0 and 1.")
+
+
+def default_counting_line_points():
+    return [{"x": 0.05, "y": 0.5}, {"x": 0.95, "y": 0.5}]
+
+
 class CountingLine(models.Model):
     name = models.CharField(max_length=100, unique=True)
     start_x = models.FloatField(
@@ -210,10 +241,7 @@ class NetworkSettings(models.Model):
 
     def __str__(self):
         return self.hostname
-
-# core/models.py
-from django.db import models
-
+        
 
 class SingletonModel(models.Model):
     singleton_instance_id = 1
@@ -244,8 +272,8 @@ class RuntimeParametrs(SingletonModel):
     api_delivery_url = models.URLField(blank=True)
     api_delivery_enabled = models.BooleanField(default=False)
     api_delivery_auth_token = models.CharField(max_length=255, blank=True)
-    api_delivery_interval = models.IntegerField(default=60, description="in seconds")
-    api_delivery_lookback_window = models.IntegerField(default=60, description="in minutes")
+    api_delivery_interval = models.IntegerField(default=60, help_text="in seconds")
+    api_delivery_lookback_window = models.IntegerField(default=60, help_text="in minutes")
 
     # System settings
     system_timezone = models.CharField(max_length=150, default="UTC")
@@ -253,40 +281,9 @@ class RuntimeParametrs(SingletonModel):
 
 
 class CountingLines(models.Model):
-    @staticmethod
-    def validate_points(value):
-        if not isinstance(value, list):
-            raise ValidationError("Points must be a list.")
-        
-        if len(value) < 2:
-            raise ValidationError("At least 2 points are required to define a counting line.")
-
-        for item in value:
-            if not isinstance(item, dict):
-                raise ValidationError("Each point must be an object.")
-
-            if set(item.keys()) != {"x", "y"}:
-                raise ValidationError("Each point must contain only x and y.")
-
-            if not isinstance(item["x"], (int, float)):
-                raise ValidationError("x must be a number.")
-
-            if not isinstance(item["y"], (int, float)):
-                raise ValidationError("y must be a number.")
-            
-            if item["x"] < 0.0 or item["x"] > 1.0:
-                raise ValidationError("x must be between 0 and 1.")
-            
-            if item["y"] < 0.0 or item["y"] > 1.0:
-                raise ValidationError("y must be between 0 and 1.")
-
-    @staticmethod
-    def default_points(value):
-        return value or [{"x": 0.05, "y": 0.5}, {"x": 0.95, "y": 0.5}]
-    
     id = models.BigAutoField(primary_key=True)
     offset = models.DecimalField(max_digits=2, decimal_places=1, default=0.1, validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
-    points = models.JSONField(default=default_points, blank=True, validators=[validate_points])
+    points = models.JSONField(default=default_counting_line_points, blank=True, validators=[validate_counting_line_points])
     entrance_number = models.IntegerField(default=1, validators=[MinValueValidator(1)])
     in_direction_sign = models.IntegerField(
         choices=[
@@ -300,6 +297,15 @@ class PleopleCountEvents(models.Model):
     counting_line = models.ForeignKey(CountingLines, on_delete=models.SET_NULL, null=True, blank=True)
     direction = models.CharField(max_length=10, choices=[("in", "in"), ("out", "out")])
     confidence = models.FloatField(default=1.0, validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
-    track_id = models.CharField(max_length=100, blank=False)
+    tracklet_id = models.CharField(max_length=100, blank=False, validators=[MinValueValidator(0)])
+    entrance_number = models.PositiveIntegerField(null=False, validators=[MinValueValidator(1)])
     recorded_at = models.DateTimeField(auto_now_add=True)
-    entrance_number = models.IntegerField(null=False)
+
+
+class AppStatuses(SingletonModel):
+    last_camera_heartbeat = models.DateTimeField(null=True, default=None)
+    last_api_delivery_attempt = models.DateTimeField(null=True, default=None)
+    last_api_delivery_success = models.DateTimeField(null=True, default=None)  
+    last_video_recording_start = models.DateTimeField(null=True, default=None)
+    last_video_recording_stop = models.DateTimeField(null=True, default=None)
+    last_pleople_count_event = models.DateTimeField(null=True, default=None)
