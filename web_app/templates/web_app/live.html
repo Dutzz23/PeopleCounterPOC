@@ -1,0 +1,48 @@
+{% extends "web_app/base.html" %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <p class="eyebrow">Live</p>
+        <h1>Camera View</h1>
+    </div>
+    <div class="button-row">
+        <button class="button" id="record-start" type="button">Start</button>
+        <button class="button danger" id="record-stop" type="button">Stop</button>
+    </div>
+</section>
+
+<section class="live-layout">
+    <div class="stream-frame">
+        <img src="/stream/mjpeg/" alt="Live camera stream">
+    </div>
+    <aside class="live-side">
+        <article class="metric compact">
+            <span>In</span>
+            <strong id="total-in">0</strong>
+        </article>
+        <article class="metric compact">
+            <span>Out</span>
+            <strong id="total-out">0</strong>
+        </article>
+        <article class="panel">
+            <div class="panel-head">
+                <h2>Recent Events</h2>
+            </div>
+            <div class="table-wrap compact-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Line</th>
+                            <th>Dir</th>
+                            <th>Track</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-events"></tbody>
+                </table>
+            </div>
+        </article>
+    </aside>
+</section>
+{% endblock %}

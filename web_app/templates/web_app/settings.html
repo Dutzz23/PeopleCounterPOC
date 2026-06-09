@@ -1,0 +1,97 @@
+{% extends "web_app/base.html" %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <p class="eyebrow">Device</p>
+        <h1>Settings</h1>
+    </div>
+</section>
+
+<section class="settings-grid">
+    <article class="panel">
+        <div class="panel-head">
+            <h2>Counting Lines</h2>
+        </div>
+        <form id="line-form" class="form-grid">
+            <input type="hidden" id="line-id">
+            <label>
+                Name
+                <input id="line-name" name="name" required maxlength="100">
+            </label>
+            <label>
+                Start X
+                <input id="start-x" name="start_x" type="number" min="0" max="1" step="0.01" required>
+            </label>
+            <label>
+                Start Y
+                <input id="start-y" name="start_y" type="number" min="0" max="1" step="0.01" required>
+            </label>
+            <label>
+                End X
+                <input id="end-x" name="end_x" type="number" min="0" max="1" step="0.01" required>
+            </label>
+            <label>
+                End Y
+                <input id="end-y" name="end_y" type="number" min="0" max="1" step="0.01" required>
+            </label>
+            <label class="checkbox-line">
+                <input id="line-active" type="checkbox" checked>
+                Active
+            </label>
+            <div class="form-actions">
+                <button class="button" type="submit">Save</button>
+                <button class="button ghost" id="line-reset" type="button">New</button>
+            </div>
+        </form>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Points</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="line-table"></tbody>
+            </table>
+        </div>
+    </article>
+
+    <article class="panel">
+        <div class="panel-head">
+            <h2>Network</h2>
+        </div>
+        <form id="network-form" class="form-grid">
+            <label>
+                Hostname
+                <input id="hostname" name="hostname" required maxlength="100">
+            </label>
+            <label>
+                Interface
+                <input id="interface" name="interface" required maxlength="40">
+            </label>
+            <label class="checkbox-line">
+                <input id="dhcp-enabled" type="checkbox">
+                DHCP
+            </label>
+            <label>
+                IP Address
+                <input id="ip-address" name="ip_address" maxlength="45">
+            </label>
+            <label>
+                Netmask
+                <input id="netmask" name="netmask" maxlength="45">
+            </label>
+            <label>
+                Gateway
+                <input id="gateway" name="gateway" maxlength="45">
+            </label>
+            <div class="form-actions">
+                <button class="button" type="submit">Save</button>
+            </div>
+        </form>
+    </article>
+</section>
+{% endblock %}

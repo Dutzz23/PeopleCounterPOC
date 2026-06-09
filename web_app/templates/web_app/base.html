@@ -1,0 +1,26 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PeopleCounter</title>
+    <link rel="stylesheet" href="{% static 'web_app/styles.css' %}">
+</head>
+<body data-page="{{ page }}">
+    <header class="topbar">
+        <a class="brand" href="/">PeopleCounter</a>
+        <nav class="nav">
+            <a href="/" class="{% if page == 'dashboard' %}active{% endif %}">Dashboard</a>
+            <a href="/live/" class="{% if page == 'live' %}active{% endif %}">Live</a>
+            <a href="/settings/" class="{% if page == 'settings' %}active{% endif %}">Settings</a>
+            <a href="/admin/">Admin</a>
+        </nav>
+    </header>
+    <main class="shell">
+        {% block content %}{% endblock %}
+    </main>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="{% static 'web_app/app.js' %}"></script>
+</body>
+</html>
